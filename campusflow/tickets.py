@@ -62,7 +62,6 @@ def calculate_priority(urgency, affected_users):
     else:
         return "low"
 
-
 def create_ticket(tickets_database, path="database.json"):
     id_number = next_ticket_id(tickets_database)
     print("Ticket_ID:",id_number)

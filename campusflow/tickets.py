@@ -83,8 +83,8 @@ def create_ticket(tickets_database, path="database.json"):
         print("3. Software")
         print("4. Other")
         CATEGORIES = ["Network", "Hardware", "Software", "Other"]
-        category_name=input("choose category:")
-        if category_name =="1":
+        category=input("choose category:")
+        if category =="1":
             print(CATEGORIES[0])
             category=CATEGORIES[0]
             break

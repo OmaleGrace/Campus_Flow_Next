@@ -79,12 +79,21 @@ class TestWorkQueue(unittest.TestCase):
             "status": "Resolved",
             "assigned_to": "Grace",
         }
+        result = get_work_queue(self.tickets)
+        ids = [ticket["id"] for ticket in result]
+        self.assertNotIn("T006", ids)
+    def test_capitalized_in_progress_status_is_excluded(self):
+        self.tickets["T007"] = {
+            "id": "T007",
+            "title": "Completed task",
+            "priority": "high",
+            "status": "in_progress",
+            "assigned_to": "Grace",
+        }
 
         result = get_work_queue(self.tickets)
         ids = [ticket["id"] for ticket in result]
-
-        self.assertNotIn("T006", ids)
-
+        self.assertNotIn("T007", ids)
 
 if __name__ == "__main__":
     unittest.main()

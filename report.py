@@ -1,4 +1,4 @@
-from campusflow.tickets import read_data
+from campusflow.tickets import load_tickets
 
 def report_panel(ticket_list):
 
@@ -46,7 +46,7 @@ def report_panel(ticket_list):
     }
     return record
 def print_summary_table():
-    panel = report_panel(read_data())
+    panel = report_panel(load_tickets())
     print(f"\n{'SUMMARY MATRICS' :<25} | {'COUNT / VALUE'}")
     print("-" * 45)
 

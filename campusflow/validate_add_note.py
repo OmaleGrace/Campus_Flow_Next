@@ -1,4 +1,4 @@
-from campusflow.tickets import next_note_id
+from campusflow.tickets import next_note_id,save_tickets
 
 def add_note(tickets_database, ticket_id, author, message, path="database.json"):
 

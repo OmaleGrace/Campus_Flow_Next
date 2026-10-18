@@ -48,9 +48,8 @@ def validate_ticket_data(category, urgency, affected_users):
     if urgency not in URGENCIES:
         print(f"Invalid urgency level. Must be one of: {URGENCIES}")
         return
-    while True:
-        if not isinstance(affected_users, int):
-            print("Affected users must be a whole number greater than zero.")
+    if not isinstance(affected_users, int):
+        print("Affected users must be a whole number greater than zero.")
 
 def calculate_priority(urgency, affected_users):
     high_urgency = (urgency == "high")
@@ -62,7 +61,6 @@ def calculate_priority(urgency, affected_users):
         return "medium"
     else:
         return "low"
-
 
 def create_ticket(tickets_database, path="database.json"):
     id_number = next_ticket_id(tickets_database)
@@ -142,11 +140,13 @@ def create_ticket(tickets_database, path="database.json"):
                     continue
                 elif answer=="n":
                     return
+            else:
+                break
         except ValueError:
             print("Please enter a valid integer for affected users.")
             answer=input("continue? y/n:").lower()
             if answer=="y":
-                pass
+                continue
             elif answer=="n":
                 return
     validate_ticket_data(category, urgency, affected_users)

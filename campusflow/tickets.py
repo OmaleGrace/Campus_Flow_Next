@@ -48,9 +48,9 @@ def validate_ticket_data(category, urgency, affected_users):
     if urgency not in URGENCIES:
         print(f"Invalid urgency level. Must be one of: {URGENCIES}")
         return
-    if not isinstance(affected_users, int) or affected_users <= 0:
-        print("Affected users must be a whole number greater than zero.")
-        return
+    while True:
+        if not isinstance(affected_users, int):
+            print("Affected users must be a whole number greater than zero.")
 
 def calculate_priority(urgency, affected_users):
     high_urgency = (urgency == "high")
@@ -131,12 +131,11 @@ def create_ticket(tickets_database, path="database.json"):
     while True:    
         try:
             affected_users = int(input("Enter number of affected users: "))
-            break
-            if affected_users < 0:
-                print("Number of affected users cannot be negative.")
+            if affected_users <=0:
+                print("Number of affected users cannot be negative or 0.")
                 answer=input("continue? y/n:").lower()
                 if answer=="y":
-                    pass
+                    continue
                 elif answer=="n":
                     return
         except ValueError:
@@ -195,24 +194,108 @@ def next_note_id(ticket):
     note_counter = count(start=start_number)
     return f"N{next(note_counter):03d}"
 
-def add_note(tickets_database, ticket_id, author, message, path="database.json"):
-    note_id=next_note_id(ticket)
-    if ticket_id not in tickets_database:
-        raise KeyError(f"Ticket {ticket_id} not found.")
-    ticket = tickets_database[ticket_id]
+def add_note(tickets_database, path="database.json"):
+    while True:
+        ticket_id = input("Enter Ticket ID to add note to (e.g., T001): ").strip().upper()
+        if not ticket_id:
+            print("Ticket ID cannot be blank.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
 
-    if ticket.get("status") == "resolved":
-        raise ValueError("Cannot add notes to a Resolved ticket.")
-    if not author or author.strip() == "":
-        raise ValueError("Note author cannot be blank.")
-    if not message or message.strip() == "":
-        raise ValueError("Note message cannot be blank.")
-
-    note_record = {
-        "note_id":note_id.strip(),
-        "author": author.strip(),
-        "message": message.strip(),
-    }
+        if ticket_id not in tickets_database:
+            print(f"Ticket {ticket_id} not found.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+        ticket = tickets_database[ticket_id]
+        if ticket.get("status", "").lower() == "resolved":
+            print("Cannot add notes to a Resolved ticket.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+        break
+    while True:
+        author = input("Enter Note Author: ").strip()
+        if not author:
+            print("Note author cannot be blank.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+        else:
+            break
+    while True:
+        message = input("Enter Note Message: ").strip()
+        if not message:
+            print("Note message cannot be blank.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+        elif len(message) < 5 or len(message) > 300:
+            print("message can not be less than 5 characters or greater than 300 characters")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+        else:
+            break
+    note_id = next_note_id(ticket).strip()
+    note_record ={
+           note_id:{
+            "note_id": note_id,
+            "author": author,
+            "message": message,
+        }
+    } 
     ticket["notes"].append(note_record)
     save_tickets(tickets_database, path)
+    print(f"Success: Note {note_id} added to Ticket {ticket_id}!")
     return ticket
+
+def view_notes(tickets_database):
+    while True:
+        ticket_id = input("Enter Ticket ID to view notes (e.g., T001): ").strip().upper()
+        if not ticket_id:
+            print("Ticket ID cannot be blank.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+
+        if ticket_id not in tickets_database:
+            print(f"Ticket {ticket_id} not found.")
+            answer = input("continue? y/n: ").lower()
+            if answer=="y":
+                continue
+            elif answer=="n":
+                return
+        ticket = tickets_database[ticket_id]
+        break
+
+    notes_list = ticket.get("notes", [])
+
+    print(f"\n================ NOTES FOR TICKET {ticket_id} ================")
+    if not notes_list:
+        print("No notes found for this ticket.")
+        print("==================================================")
+        return
+    for note_wrapper in notes_list:
+        for note_id, note_details in note_wrapper.items():
+            print(f"Note ID: {note_id}")
+            print(f"Author:  {note_details.get('author')}")
+            print(f"Message: {note_details.get('message')}")
+            print("-" * 50)         
+    print("==================================================")
+

@@ -1,49 +1,17 @@
 import json
-VALID_STATUSES = ("open", "in_progress", "resolved")
+from campusflow.tickets import can_transition 
 
+VALID_STATUSES = ("open", "in_progress", "resolved")
 
 def update_ticket_status(tickets, ticket_id, new_status):
     ticket_id = ticket_id.strip().upper()
     new_status = new_status.strip().lower()
-
     if ticket_id not in tickets:
         raise ValueError("Ticket ID does not exist.")
-
     ticket = tickets[ticket_id]
 
-    if new_status not in VALID_STATUSES:
-        raise ValueError(
-            "Invalid status. Choose open, in_progress, or resolved."
-        )
-
-    current_status = ticket["status"].strip().lower()
-
-    if current_status not in VALID_STATUSES:
-        raise ValueError("The ticket has an invalid current status.")
-
-    if current_status == new_status:
-        raise ValueError(
-            f"Ticket is already in {current_status} status."
-        )
-
-    if current_status == "open" and new_status == "in_progress":
-        if not ticket.get("assigned_to"):
-            raise ValueError(
-                "Cannot start work on an unassigned ticket."
-            )
-        ticket["status"] = "in_progress"
-
-    elif current_status == "in_progress" and new_status == "resolved":
-        ticket["status"] = "resolved"
-
-    elif current_status == "resolved" and new_status == "open":
-        ticket["status"] = "open"
-
-    else:
-        raise ValueError(
-            f"Cannot change status from {current_status} "
-            f"to {new_status}."
-        )
+    can_transition(ticket, new_status)
+    ticket["status"] = new_status
 
     try:
         with open("database.json", "w", encoding="utf-8") as file:
@@ -54,6 +22,7 @@ def update_ticket_status(tickets, ticket_id, new_status):
         ) from error
 
     return ticket
+
 
 def change_ticket_status(tickets):
     if not tickets:
@@ -96,6 +65,5 @@ def change_ticket_status(tickets):
             f"Ticket {ticket_id} status updated to "
             f"{ticket['status']} successfully."
         )
-
     except ValueError as error:
         print(f"Error: {error}")

@@ -1,6 +1,6 @@
 
 def search_and_filter_tickets(
-    tickets: list, 
+    tickets: dict, 
     title_query: str = "", 
     category_filter: str = "", 
     status_filter: str = "", 
@@ -12,7 +12,7 @@ def search_and_filter_tickets(
     clean_query = title_query.strip().casefold()
     
     # Loop through every single ticket in the system one by one
-    for ticket in tickets:
+    for ticket in tickets.values():
         
         if clean_query:
             # Safely grab the title, lowercase it with casefold

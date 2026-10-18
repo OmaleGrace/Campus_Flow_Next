@@ -7,8 +7,6 @@ from campusflow.work_queue import display_work_queue
 from campusflow.reports import display_report
 from cli_ticket import cli_tickets
 
-
-
 def campus_flow():
     while True:
         design="🀫"*51

@@ -1,4 +1,4 @@
-from campusflow.tickets import create_ticket, load_tickets
+from campusflow.tickets import create_ticket, load_tickets,add_note,view_notes
 from campusflow.list_ticket import list_ticket
 from campusflow.view_ticket import view_ticket
 from campusflow.assign_ticket import assign_ticket
@@ -22,7 +22,9 @@ def campus_flow():
         print("5. Reports")
         print("6. Change Ticket Status")
         print("7. Work Queue")
-        print("8. Exit")
+        print("8. Add Follow-up Note")
+        print("9. View Follow-up Note")
+        print("10. Exit")
         option = input("Select option: ")
         db = load_tickets("database.json")
         if option == "1":
@@ -40,9 +42,9 @@ def campus_flow():
         elif option == "7":
             display_work_queue(db)
         elif option == "8":
-            add_ticket_note(db)
+            add_note(db)
         elif option == "9":
-            view_ticket_notes(db)
+            view_notes(db)
         elif option == "10":
             print("Exited...")
             break

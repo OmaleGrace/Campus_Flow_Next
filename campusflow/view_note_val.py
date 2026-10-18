@@ -4,9 +4,11 @@ def view_notes(tickets_database, ticket_id):
 
     if not ticket_id:
         print("Ticket ID cannot be blank.")
+        return
         
     if ticket_id not in tickets_database:
         print(f"Ticket {ticket_id} not found.")
+        return
         
     ticket = tickets_database[ticket_id]
     

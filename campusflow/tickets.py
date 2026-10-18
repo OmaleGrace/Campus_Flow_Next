@@ -48,7 +48,7 @@ def Create_ticket():
         print("1. Network")
         print("2. Hardware")
         print("3. Software")
-        print("4. Ohter")
+        print("4. Other")
         category_name=input("choose category:")
         if category_name =="1":
             print(categories[0])

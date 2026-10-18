@@ -7,24 +7,24 @@ def add_note(tickets_database, ticket_id, author, message, path="database.json")
     message = message.strip()
 
     if not ticket_id:
-        raise ValueError("Ticket ID cannot be blank.")
+        print("Ticket ID cannot be blank.")
         
     if ticket_id not in tickets_database:
-        raise KeyError(f"Ticket {ticket_id} not found in database.")
+        print(f"Ticket {ticket_id} not found in database.")
         
     ticket = tickets_database[ticket_id]
 
     if ticket["status"].strip().lower() == "resolved":
-        raise ValueError("Cannot add notes to a Resolved ticket.")
+        print("Cannot add notes to a Resolved ticket.")
 
     if not author:
-        raise ValueError("Note author cannot be blank.")
+        print("Note author cannot be blank.")
         
     if not message:
-        raise ValueError("Note message cannot be blank.")
+        print("Note message cannot be blank.")
         
     if len(message) < 5 or len(message) > 300:
-        raise ValueError("Note message must be between 5 and 300 characters long.")
+        print("Note message must be between 5 and 300 characters long.")
 
     note_id = next_note_id(ticket).strip()
     

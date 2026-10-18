@@ -67,52 +67,85 @@ def calculate_priority(urgency, affected_users):
 def create_ticket(tickets_database, path="database.json"):
     id_number = next_ticket_id(tickets_database)
     print("Ticket_ID:",id_number)
-    title = input("Enter Title: ").strip()
-    if not title:
-        print("Title cannot be blank.")
-        return None
-    CATEGORIES = ["Network", "Hardware", "Software", "Other"]
-    print("Categories\n1.Network\n2.Hardware\n3.Software\n4.Other")
-    category=input("choose category:").strip()
-    if category=="1":
-        print(CATEGORIES[0])
-        category=CATEGORIES[0]
-    elif category=="2":
-        print(CATEGORIES[1])
-        category=CATEGORIES[1]
-    elif category=="3":
-        print(CATEGORIES[2])
-        category=CATEGORIES[2]
-    elif category=="4":
-        print(CATEGORIES[4])
-        category=CATEGORIES[4]
-    else:
-        print(f"Invalid/emptycategory. Must be one of: {CATEGORIES}")
-        return
-    URGENCIES = ["low", "medium", "high"]   
-    print("urgency\n1.low\n2.medium\n3.high")
-    urgency = input("Enter Urgency:").strip()
-    if urgency=="1":
-        print(URGENCIES[0])
-        urgency=URGENCIES[0]
-    elif urgency=="2":
-        print(URGENCIES[1])
-        urgency=URGENCIES[1]
-    elif urgency=="3":
-        print(URGENCIES[2])
-        urgency=URGENCIES[2]
-    else:
-        print(f"Invalid urgency level. Must be one of: {URGENCIES}")
-        return
-    try:
-        affected_users = int(input("Enter number of affected users: "))
-        if affected_users < 0:
-            print("Number of affected users cannot be negative.")
-            return None
-    except ValueError:
-        print("Please enter a valid integer for affected users.")
-        return None
-        
+    while True:
+        title = input("Enter Title: ").strip()
+        if not title:
+            print("Title cannot be blank.")
+            answer=input("continue? y/n:").lower()
+            if answer=="y":
+                pass
+            elif answer=="n":
+                return
+        else:
+            break 
+    while True:
+        CATEGORIES = ["Network", "Hardware", "Software", "Other"]
+        print("Categories\n1.Network\n2.Hardware\n3.Software\n4.Other")
+        category=input("choose category:").strip()
+        if category=="1":
+            print(CATEGORIES[0])
+            category=CATEGORIES[0]
+            break
+        elif category=="2":
+            print(CATEGORIES[1])
+            category=CATEGORIES[1]
+            break
+        elif category=="3":
+            print(CATEGORIES[2])
+            category=CATEGORIES[2]
+            break
+        elif category=="4":
+            print(CATEGORIES[3])
+            category=CATEGORIES[3]
+            break
+        else:
+            print(f"Invalid/emptycategory. Must be one of: {CATEGORIES}")
+            answer=input("continue? y/n:").lower()
+            if answer=="y":
+                pass
+            elif answer=="n":
+                return
+    while True:        
+        URGENCIES = ["low", "medium", "high"]   
+        print("urgency\n1.low\n2.medium\n3.high")
+        urgency = input("Enter Urgency:").strip()
+        if urgency=="1":
+            print(URGENCIES[0])
+            urgency=URGENCIES[0]
+            break
+        elif urgency=="2":
+            print(URGENCIES[1])
+            urgency=URGENCIES[1]
+            break
+        elif urgency=="3":
+            print(URGENCIES[2])
+            urgency=URGENCIES[2]
+            break
+        else:
+            print(f"Invalid urgency level. Must be one of: {URGENCIES}")
+            answer=input("continue? y/n:").lower()
+            if answer=="y":
+                pass
+            elif answer=="n":
+                return
+    while True:    
+        try:
+            affected_users = int(input("Enter number of affected users: "))
+            break
+            if affected_users < 0:
+                print("Number of affected users cannot be negative.")
+                answer=input("continue? y/n:").lower()
+                if answer=="y":
+                    pass
+                elif answer=="n":
+                    return
+        except ValueError:
+            print("Please enter a valid integer for affected users.")
+            answer=input("continue? y/n:").lower()
+            if answer=="y":
+                pass
+            elif answer=="n":
+                return
     validate_ticket_data(category, urgency, affected_users)
     priority_level = calculate_priority(urgency, affected_users)
 

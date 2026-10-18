@@ -79,12 +79,15 @@ def create_ticket(tickets_database, path="database.json"):
         else:
             break 
     while True:
-        CATEGORIES = ["Network", "Hardware", "Software", "Other"]
-        print("Categories\n1.Network\n2.Hardware\n3.Software\n4.Other")
-        category=input("choose category:").strip()
-        if category=="1":
-            print(CATEGORIES[0])
-            category=CATEGORIES[0]
+        print("*Selcet Category*")
+        print("1. Network")
+        print("2. Hardware")
+        print("3. Software")
+        print("4. Other")
+        category_name=input("choose category:")
+        if category_name =="1":
+            print(categories[0])
+            category=categories[0]
             break
         elif category=="2":
             print(CATEGORIES[1])

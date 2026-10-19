@@ -1,6 +1,14 @@
 import os
+import sys
 import json
 import unittest
+
+# Dynamic Path Resolution: Detects the directory containing 'tests/' and binds it to Python's import paths
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from campusflow.tickets import (
     load_tickets, 
     save_tickets, 
@@ -14,7 +22,7 @@ from campusflow.tickets import (
 TEST_DB_PATH = "test_database.json"
 
 class PureInputSimulator:
-    """Simulates console text entry without using the mock module."""
+    """Simulates raw keyboard entries to satisfy interactive prompt loops without using mock."""
     def __init__(self, inputs_list):
         self.iterator = iter(inputs_list)
 
@@ -28,15 +36,15 @@ class PureInputSimulator:
 class TestTicketsLifecycle(unittest.TestCase):
 
     def setUp(self):
-        # Clear out filesystem trace states before every test run
+        # Clean local storage trace paths before execution
         if os.path.exists(TEST_DB_PATH):
             os.remove(TEST_DB_PATH)
         
-        # Safely preserve original reference to input builtin
+        # Capture clean global references to avoid side effects
         self.original_input = __builtins__['input'] if isinstance(__builtins__, dict) else getattr(__builtins__, 'input')
 
     def tearDown(self):
-        # Clean filesystem states and restore builtins after every test execution
+        # Post-test cleanup: delete database traces and restore native user input controls
         if os.path.exists(TEST_DB_PATH):
             os.remove(TEST_DB_PATH)
             
@@ -46,7 +54,7 @@ class TestTicketsLifecycle(unittest.TestCase):
             setattr(__builtins__, 'input', self.original_input)
 
     def _inject_inputs(self, commands):
-        """Helper to inject simulated entries directly into global scope."""
+        """Helper to assign simulated response sequences to core console functions."""
         simulator = PureInputSimulator(commands)
         if isinstance(__builtins__, dict):
             __builtins__['input'] = simulator.simulate_read
@@ -54,7 +62,7 @@ class TestTicketsLifecycle(unittest.TestCase):
             setattr(__builtins__, 'input', simulator.simulate_read)
 
     def test_next_ticket_id_generation(self):
-        """Test 1: Verifies unique autoincrement ID calculation mechanics."""
+        """Verifies primary autoincrement sequence operations."""
         db = {}
         self.assertEqual(next_ticket_id(db), "T001")
         
@@ -63,16 +71,16 @@ class TestTicketsLifecycle(unittest.TestCase):
         self.assertEqual(next_ticket_id(db), "T010")
 
     def test_calculate_priority_matrix(self):
-        """Test 2: Verifies complex conditional logic branches for matrix scaling."""
+        """Verifies conditional evaluations map out correctly across scale thresholds."""
         self.assertEqual(calculate_priority("high", 12), "critical")
         self.assertEqual(calculate_priority("high", 2), "high")
         self.assertEqual(calculate_priority("medium", 4), "medium")
         self.assertEqual(calculate_priority("low", 1), "low")
 
     def test_create_ticket_interactive_lifecycle(self):
-        """Test 3: Verifies console generation pipeline builds valid ticket schema profiles."""
+        """Verifies console prompting flow populates expected record properties successfully."""
         db = {}
-        # Sequenced entries: Title -> Category Option -> Urgency Option -> Affected Users Count
+        # Entry order matches prompt loop dependencies: Title -> Category -> Urgency -> Affected Users
         self._inject_inputs(["Server Down", "1", "3", "14"])
 
         ticket = create_ticket(db, path=TEST_DB_PATH)
@@ -84,7 +92,7 @@ class TestTicketsLifecycle(unittest.TestCase):
         self.assertEqual(ticket["affected_users"], 14)
 
     def test_can_transition_assignment_guards(self):
-        """Test 4: Verifies status workflows block unassigned movement paths."""
+        """Verifies operational process constraints raise errors if tickets are unassigned."""
         unassigned_ticket = {"status": "Open", "assigned_to": None}
         with self.assertRaises(ValueError):
             can_transition(unassigned_ticket, "in_progress")
@@ -93,12 +101,13 @@ class TestTicketsLifecycle(unittest.TestCase):
         self.assertTrue(can_transition(assigned_ticket, "in_progress"))
 
     def test_next_note_id_increments(self):
-        """Test 5: Verifies child collection element sequence tagging logic."""
+        """Verifies child array elements auto-increment predictably."""
         sample_ticket = {"notes": []}
         self.assertEqual(next_note_id(sample_ticket), "N001")
         
         sample_ticket["notes"].append({"note_id": "N001", "message": "Investigating"})
         self.assertEqual(next_note_id(sample_ticket), "N002")
+
 
 if __name__ == "__main__":
     unittest.main()

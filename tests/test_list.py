@@ -1,7 +1,7 @@
-from campusflow.tickets import tickets_database
+from campusflow.tickets import load_tickets
 from campusflow.list_ticket import list_ticket
 
-tickets_database.clear()
+tickets_database=load_tickets()
 tickets_database["T001"] = {"title": "Wi-Fi Issue"}
 tickets_database["T002"] = {"title": "Broken Screen"}
 

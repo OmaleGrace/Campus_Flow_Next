@@ -22,38 +22,41 @@ Menu
 ᠆᠆᠆᠆᠆
 1. Generate Ticket
 2. List Tickets
-3. Assign Ticket
-4. Reports
-5. Change Ticket Status
-6. Work Queue
-7. HOC Report
-8. Search
-9. Follow-Up Note
-10. View Note Manu
-11. Understanding_Check
-12. Exit"""
+3. view Ticket
+4. Assign Ticket
+5. Reports
+6. Change Ticket Status
+7. Work Queue
+8. HOC Report
+9. Search
+10. Follow-Up Note
+11. View Note Manu
+12. Understanding_Check
+13. Exit"""
     def execute_menu_action(choice):
         if choice == "1":
             create_ticket(db, filename)
         elif choice == "2":
             list_ticket()
         elif choice == "3":
-            assign_ticket(db)
+            view_ticket_details()
         elif choice == "4":
-            display_report(db)
+            assign_ticket(db)
         elif choice == "5":
-            change_ticket_status(db)
+            display_report(db)
         elif choice == "6":
-            display_work_queue(db)
+            change_ticket_status(db)
         elif choice == "7":
-            print_summary_table()
+            display_work_queue(db)
         elif choice == "8":
-            search_menu(db)
+            print_summary_table()
         elif choice == "9":
-            add_follow_up_menu()
+            search_menu(db)
         elif choice == "10":
-            ticket_note_menu(db)
+            add_follow_up_menu()
         elif choice == "11":
+            ticket_note_menu(db)
+        elif choice == "12":
             run_cli_understanding_check()
         else:
             print("Invalid option..")
@@ -61,7 +64,7 @@ Menu
         print(menu_display_text)
         option = input("Select option: ").strip()
 
-        if option == "12":
+        if option == "13":
             print("Exited...")
             break
         execute_menu_action(option)

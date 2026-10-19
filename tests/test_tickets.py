@@ -1,4 +1,14 @@
 import os
+import sys
+import json
+import unittest
+
+# Dynamic Path Resolution: Detects the directory containing 'tests/' and binds it to Python's import paths
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from campusflow.tickets import (
     load_tickets, 
     save_tickets, 
@@ -10,7 +20,9 @@ from campusflow.tickets import (
 )
 
 TEST_DB_PATH = "test_database.json"
+
 class PureInputSimulator:
+    """Simulates raw keyboard entries to satisfy interactive prompt loops without using mock."""
     def __init__(self, inputs_list):
         self.iterator = iter(inputs_list)
 
@@ -18,100 +30,84 @@ class PureInputSimulator:
         try:
             return next(self.iterator)
         except StopIteration:
-            return "n" 
-def run_test_suite():
-    print("==================================================")
-    print("   RUNNING PURE BACKEND LIFECYCLE VERIFICATIONS   ")
-    print("==================================================")
-    
-    passed_tests = 0
-    if os.path.exists(TEST_DB_PATH):
-        os.remove(TEST_DB_PATH)
+            return "n"
 
-    builtin_scope = globals()['__builtins__']
-    if isinstance(builtin_scope, dict):
-        original_input = builtin_scope['input']
-    else:
-        original_input = getattr(builtin_scope, 'input')
-    try:
+
+class TestTicketsLifecycle(unittest.TestCase):
+
+    def setUp(self):
+        # Clean local storage trace paths before execution
+        if os.path.exists(TEST_DB_PATH):
+            os.remove(TEST_DB_PATH)
+        
+        # Capture clean global references to avoid side effects
+        self.original_input = __builtins__['input'] if isinstance(__builtins__, dict) else getattr(__builtins__, 'input')
+
+    def tearDown(self):
+        # Post-test cleanup: delete database traces and restore native user input controls
+        if os.path.exists(TEST_DB_PATH):
+            os.remove(TEST_DB_PATH)
+            
+        if isinstance(__builtins__, dict):
+            __builtins__['input'] = self.original_input
+        else:
+            setattr(__builtins__, 'input', self.original_input)
+
+    def _inject_inputs(self, commands):
+        """Helper to assign simulated response sequences to core console functions."""
+        simulator = PureInputSimulator(commands)
+        if isinstance(__builtins__, dict):
+            __builtins__['input'] = simulator.simulate_read
+        else:
+            setattr(__builtins__, 'input', simulator.simulate_read)
+
+    def test_next_ticket_id_generation(self):
+        """Verifies primary autoincrement sequence operations."""
         db = {}
-        assert next_ticket_id(db) == "T001", "Base ticket ID should be T001"
+        self.assertEqual(next_ticket_id(db), "T001")
+        
         db["T001"] = {"id": "T001"}
         db["T009"] = {"id": "T009"}
-        assert next_ticket_id(db) == "T010", "Sequence skip failed to find maximum marker"
-        print("✔ Test 1: Unique Ticket ID Engine Passed Successfully.")
-        passed_tests += 1
-    except AssertionError as e:
-        print(f"Test 1 Failed: {e}")
+        self.assertEqual(next_ticket_id(db), "T010")
 
-    try:
-        assert calculate_priority("high", 12) == "critical", "Matrix breakdown on high+12"
-        assert calculate_priority("high", 2) == "high", "Matrix breakdown on high isolated"
-        assert calculate_priority("medium", 4) == "medium", "Matrix breakdown on medium scale"
-        assert calculate_priority("low", 1) == "low", "Matrix breakdown on trivial items"
-        print("✔ Test 2: Priority Grid Core Calculations Passed Successfully.")
-        passed_tests += 1
-    except AssertionError as e:
-        print(f"Test 2 Failed: {e}")
+    def test_calculate_priority_matrix(self):
+        """Verifies conditional evaluations map out correctly across scale thresholds."""
+        self.assertEqual(calculate_priority("high", 12), "critical")
+        self.assertEqual(calculate_priority("high", 2), "high")
+        self.assertEqual(calculate_priority("medium", 4), "medium")
+        self.assertEqual(calculate_priority("low", 1), "low")
 
-    try:
+    def test_create_ticket_interactive_lifecycle(self):
+        """Verifies console prompting flow populates expected record properties successfully."""
         db = {}
-        simulator = PureInputSimulator(["Server Down", "1", "3", "14"])
-        
-        if isinstance(builtin_scope, dict):
-            builtin_scope['input'] = simulator.simulate_read
-        else:
-            setattr(builtin_scope, 'input', simulator.simulate_read)
+        # Entry order matches prompt loop dependencies: Title -> Category -> Urgency -> Affected Users
+        self._inject_inputs(["Server Down", "1", "3", "14"])
 
         ticket = create_ticket(db, path=TEST_DB_PATH)
-        
-        if isinstance(builtin_scope, dict):
-            builtin_scope['input'] = original_input
-        else:
-            setattr(builtin_scope, 'input', original_input)
 
-        assert ticket is not None, "Ticket failed to build records properly"
-        assert ticket["id"] == "T001", "Wrong baseline initialization"
-        assert ticket["category"] == "Network", "Option mapping failed"
-        assert ticket["priority"] == "critical", "Calculated priority assignment error"
-        print("✔ Test 3: Interactive Console Creation Lifecycle Passed Successfully.")
-        passed_tests += 1
-    except AssertionError as e:
-        if isinstance(builtin_scope, dict):
-            builtin_scope['input'] = original_input
-        else:
-            setattr(builtin_scope, 'input', original_input)
-        print(f"Test 3 Failed: {e}")
-    try:
+        self.assertIsNotNone(ticket)
+        self.assertEqual(ticket["id"], "T001")
+        self.assertEqual(ticket["category"], "Network")
+        self.assertEqual(ticket["priority"], "critical")
+        self.assertEqual(ticket["affected_users"], 14)
+
+    def test_can_transition_assignment_guards(self):
+        """Verifies operational process constraints raise errors if tickets are unassigned."""
         unassigned_ticket = {"status": "Open", "assigned_to": None}
-        try:
+        with self.assertRaises(ValueError):
             can_transition(unassigned_ticket, "in_progress")
-            raise AssertionError("Allowed unassigned transition to progress status")
-        except ValueError:
-            pass
 
         assigned_ticket = {"status": "Open", "assigned_to": "Alex (Eng)"}
-        assert can_transition(assigned_ticket, "in_progress") == True, "Valid workflow blocked"
-        print("Test 4: Assignment Transition Guards Passed Successfully.")
-        passed_tests += 1
-    except AssertionError as e:
-        print(f"Test 4 Failed: {e}")
-    try:
+        self.assertTrue(can_transition(assigned_ticket, "in_progress"))
+
+    def test_next_note_id_increments(self):
+        """Verifies child array elements auto-increment predictably."""
         sample_ticket = {"notes": []}
-        assert next_note_id(sample_ticket) == "N001", "Notes collection base initialization error"
+        self.assertEqual(next_note_id(sample_ticket), "N001")
+        
         sample_ticket["notes"].append({"note_id": "N001", "message": "Investigating"})
-        assert next_note_id(sample_ticket) == "N002", "Incremental sequence mapping error"
-        print("✔ Test 5: Notes Generation Counter Passed Successfully.")
-        passed_tests += 1
-    except AssertionError as e:
-        print(f"Test 5 Failed: {e}")
+        self.assertEqual(next_note_id(sample_ticket), "N002")
 
-    if os.path.exists(TEST_DB_PATH):
-        os.remove(TEST_DB_PATH)
-
-    print("\n==================================================")
-    print(f"   VERIFICATION COMPLETE: {passed_tests}/5 MODULES PASSED   ")
-    print("==================================================")
 
 if __name__ == "__main__":
-    run_test_suite()
+    unittest.main()

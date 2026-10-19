@@ -1,5 +1,6 @@
 from campusflow.tickets import create_ticket, load_tickets
 from campusflow.list_ticket import list_ticket
+from campusflow.view_tickets import view_ticket_details
 from campusflow.assign_ticket import assign_ticket
 from campusflow.workflow import change_ticket_status
 from campusflow.work_queue import display_work_queue
@@ -18,14 +19,15 @@ def campus_flow():
         print("᠆᠆᠆᠆᠆")
         print("1. Generate Ticket")
         print("2. List Tickets")
-        print("3. Assign Ticket")
-        print("4. Reports")
-        print("5. Change Ticket Status")
-        print("6. Work Queue")
-        print("7. HOC Report")
-        print("8. Search")
-        print("9. Understanding_Check")
-        print("10. Exit")
+        print("3. view ticket")
+        print("4. Assign Ticket")
+        print("5. Reports")
+        print("6. Change Ticket Status")
+        print("7. Work Queue")
+        print("8. HOC Report")
+        print("9. Search")
+        print("10. Understanding_Check")
+        print("11. Exit")
         option = input("Select option: ")
         db = load_tickets("database.json")
         if option == "1":
@@ -33,20 +35,22 @@ def campus_flow():
         elif option == "2":
             list_ticket()
         elif option == "3":
-            assign_ticket(db)
+            view_ticket_details()
         elif option == "4":
-            display_report(db)
+            assign_ticket(db)
         elif option == "5":
-            change_ticket_status(db)
+            display_report(db)
         elif option == "6":
-            display_work_queue(db)
+            change_ticket_status(db)
         elif option == "7":
-            print_summary_table()
+            display_work_queue(db)
         elif option == "8":
-            search_menu(db)
+            print_summary_table()
         elif option == "9":
-            run_cli_understanding_check()
+            search_menu(db)
         elif option == "10":
+            run_cli_understanding_check()
+        elif option == "11":
             print("Exited...")
             break
         else:

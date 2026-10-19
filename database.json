@@ -8,16 +8,5 @@
         "priority": "critical",
         "status": "resolved",
         "assigned_to": "Grace"
-    },
-    "T002": {
-        "id": "T002",
-        "title": "lagging system",
-        "category": "Software",
-        "urgency": "low",
-        "affected_users": 23,
-        "priority": "high",
-        "status": "Open",
-        "assigned_to": null,
-        "notes": []
     }
 }
